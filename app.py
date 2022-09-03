@@ -107,7 +107,7 @@ def renderizacion(tab, n_clicks, nodos):
     # la columna marcado funciona para ver si el nodo en cuestion ya fue visitado
     grafo = puntosAleatorios.assign(marcado=False)
 
-    fig = px.line(puntosAleatorios, x="X", y="Y", title='Grafico')
+    fig = px.scatter(puntosAleatorios, x="X", y="Y", title='Nodos del grafo')
 
     if tab == 'tab-1':
         return html.Div(
