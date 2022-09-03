@@ -18,6 +18,7 @@ app.title = 'TSP-Resolucion'
 
 # definicion de funciones útiles
 
+
 # título de la aplicacion
 def titulo():
     return html.H3(
@@ -27,9 +28,27 @@ def titulo():
         }
     )
 
+
 # obtiene los parametros de entrada para generar los gráficos
 def parametros():
-    return
+    return html.Div(
+        children=[
+            html.P(
+                'Ingrese el número de nodos'
+            ),
+            dcc.Input(
+                id='entrada-nodo',
+                value=20,
+                type='number'
+            ),
+            html.Button(
+                'aceptar',
+                id='submit-nodos',
+                n_clicks=0
+            ),
+        ]
+    )
+
 
 # aqui definimos el diseño de la aplicacion
 app.layout = html.Div(
@@ -57,18 +76,25 @@ app.layout = html.Div(
     ]
 )
 
+
 # definimos el callback que se encarga de vincular el tab con cada contenido
 @app.callback(
-    Output('contenido-tab', 'children'),
-    Input('tabs', 'value')
+    Output(component_id='contenido-tab', component_property='children'),
+    [
+        Input(component_id='tabs', component_property='value'),
+        Input(component_id='submit-nodos', component_property='n_clicks')
+    ],
+    State(component_id='entrada-nodo', component_property='value')
 )
 
+
 # funcion encargada de renderizar el tab seleccionado
-def renderizacion(tab):
+def renderizacion(tab, n_clicks, nodos):
     if tab == 'tab-1':
         return html.Div(
             children=[
-                html.H5('Tab-1')
+                html.H5('Tab-1'),
+                html.P(nodos)
             ]
         )
     elif tab == 'tab-2':
