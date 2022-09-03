@@ -3,6 +3,12 @@ import dash
 from dash import html, dcc
 from dash.dependencies import Input, Output, State
 
+import pandas as pd
+import numpy as np
+
+import plotly.express as px
+
+
 # estilos que serán utilizados
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
@@ -44,10 +50,12 @@ def parametros():
             html.Button(
                 'aceptar',
                 id='submit-nodos',
+                className='btn btn-primary',
                 n_clicks=0
             ),
         ]
     )
+
 
 
 # aqui definimos el diseño de la aplicacion
@@ -90,11 +98,26 @@ app.layout = html.Div(
 
 # funcion encargada de renderizar el tab seleccionado
 def renderizacion(tab, n_clicks, nodos):
+
+    # el par (nodos,2) da las dimensiones del array que generará numpy (fila,col)
+    puntosAleatorios = pd.DataFrame(
+        np.random.randint(0, 50, (nodos, 2)),
+        columns=['X', 'Y']
+    )
+    # la columna marcado funciona para ver si el nodo en cuestion ya fue visitado
+    grafo = puntosAleatorios.assign(marcado=False)
+
+    fig = px.line(puntosAleatorios, x="X", y="Y", title='Grafico')
+
     if tab == 'tab-1':
         return html.Div(
             children=[
                 html.H5('Tab-1'),
-                html.P(nodos)
+                html.Br(),
+                dcc.Graph(
+                    id='grafo-inicial',
+                    figure=fig,
+                )
             ]
         )
     elif tab == 'tab-2':
