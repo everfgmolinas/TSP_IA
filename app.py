@@ -36,13 +36,15 @@ app.layout = html.Div(
     children=[
         # le daremos un título general al cuerpo de la aplicacion
         titulo(),
+        html.Br(),
         # aqui solicitaremos los parámetros para dar una solucion al problema
         parametros(),
+        html.Br(),
         # tabs que contendran cada una de las soluciones
         dcc.Tabs(
             id='tabs',
             # valor por defecto
-            value='tab1',
+            value='tab-1',
             children=[
                 dcc.Tab(label='Solución 1', value='tab-1'),
                 dcc.Tab(label='Solución 2', value='tab-2'),
@@ -50,9 +52,43 @@ app.layout = html.Div(
                 dcc.Tab(label='Comparaciones', value='tab-4'),
             ]
         ),
+        html.Br(),
         html.Div(id='contenido-tab')
     ]
 )
+
+# definimos el callback que se encarga de vincular el tab con cada contenido
+@app.callback(
+    Output('contenido-tab', 'children'),
+    Input('tabs', 'value')
+)
+
+# funcion encargada de renderizar el tab seleccionado
+def renderizacion(tab):
+    if tab == 'tab-1':
+        return html.Div(
+            children=[
+                html.H5('Tab-1')
+            ]
+        )
+    elif tab == 'tab-2':
+        return html.Div(
+            children=[
+                html.H5('Tab-2')
+            ]
+        )
+    elif tab == 'tab-3':
+        return html.Div(
+            children=[
+                html.H5('Tab-3')
+            ]
+        )
+    elif tab == 'tab-4':
+        return html.Div(
+            children=[
+                html.H5('Tab-4')
+            ]
+        )
 
 
 # con esto podemos levantar la aplicación en el navegador
