@@ -73,9 +73,9 @@ app.layout = html.Div(
             # valor por defecto
             value='tab-1',
             children=[
-                dcc.Tab(label='Solución 1', value='tab-1'),
-                dcc.Tab(label='Solución 2', value='tab-2'),
-                dcc.Tab(label='Solución 3', value='tab-3'),
+                dcc.Tab(label='Backtracking', value='tab-1'),
+                dcc.Tab(label='Avaro', value='tab-2'),
+                dcc.Tab(label='Las Vegas', value='tab-3'),
                 dcc.Tab(label='Comparaciones', value='tab-4'),
             ]
         ),
