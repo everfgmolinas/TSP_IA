@@ -1,12 +1,15 @@
 # importacion de librerias para construir la gui en el navegador
 import dash
-from dash import html, dcc
+from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
 
 import pandas as pd
 import numpy as np
+import time
 
 import plotly.express as px
+
+import Vegas
 
 
 # estilos que serán utilizados
@@ -99,15 +102,10 @@ app.layout = html.Div(
 # funcion encargada de renderizar el tab seleccionado
 def renderizacion(tab, n_clicks, nodos):
 
-    # el par (nodos,2) da las dimensiones del array que generará numpy (fila,col)
-    puntosAleatorios = pd.DataFrame(
-        np.random.randint(0, 50, (nodos, 2)),
-        columns=['X', 'Y']
-    )
-    # la columna marcado funciona para ver si el nodo en cuestion ya fue visitado
-    grafo = puntosAleatorios.assign(marcado=False)
+    # creamos una instancia del objeto que contendrá la solución
+    grafo = Vegas.Vegas(nodos)
 
-    fig = px.scatter(puntosAleatorios, x="X", y="Y", title='Nodos del grafo')
+    fig = px.scatter(grafo.nodos(), x="X", y="Y", title='Nodos del grafo')
 
     if tab == 'tab-1':
         return html.Div(
@@ -127,9 +125,19 @@ def renderizacion(tab, n_clicks, nodos):
             ]
         )
     elif tab == 'tab-3':
+        # generacion de número aleatorio que representa al índice del dataframe que se utilizara
+        indiceAleatorio = np.random.randint(0, nodos - 1)
+        # se marca el inicio del algoritmo
+        tiempoInicio = time.time()
+        # llamamos a nuestra funcion recursiva que resolverá el problema por el método de Las Vegas
+        grafo.vegas(tiempoInicio, grafo.dato['X'][indiceAleatorio], grafo.dato['Y'][indiceAleatorio], 0)
+        # traemos el dataframe generado que renderizaremos
+        df = grafo.dato
         return html.Div(
             children=[
-                html.H5('Tab-3')
+                html.H5('Tab-3'),
+                dash_table.DataTable(df.to_dict('records'), [{"name": row, 'id': row} for row in df.columns]),
+                html.Div(id='solucion-avaro')
             ]
         )
     elif tab == 'tab-4':
