@@ -137,10 +137,36 @@ def renderizacion(tab, n_clicks, nodos):
         return html.Div(
             children=[
                 html.Div(
+                    style={'display': 'flex', 'flex-direction': 'row'},
                     children=[
-                        html.H5('Camino solución'),
-                        dash_table.DataTable(camino.to_dict('records'),
-                                             [{"name": row, 'id': row} for row in camino.columns]),
+                        html.Div(
+                            children=[
+                                html.H5('Camino solución'),
+                                dash_table.DataTable(
+                                    camino.to_dict('records'),
+                                    [{"name": row, 'id': row} for row in camino.columns],
+                                    style_header={
+                                        'backgroundColor': 'white',
+                                        'fontWeight': 'bold'
+                                    },
+                                ),
+                            ],
+                            style={
+                                "width": 200,
+                                'margin': 100
+                            }
+                        ),
+                        html.Div(
+                            children=[
+                                html.H5('Grafo final'),
+                                dash_table.DataTable(df.to_dict('records'),
+                                                     [{"name": row, 'id': row} for row in df.columns]),
+                            ],
+                            style={
+                                "width": 300,
+                                'margin': 100
+                            }
+                        ),
                     ]
                 ),
                 html.Div(
@@ -153,12 +179,6 @@ def renderizacion(tab, n_clicks, nodos):
                                 ),
                             ]
                         ),
-                    ]
-                ),
-                html.Div(
-                    children=[
-                        html.H5('Grafo final'),
-                        dash_table.DataTable(df.to_dict('records'), [{"name": row, 'id': row} for row in df.columns]),
                     ]
                 ),
             ]
