@@ -50,7 +50,7 @@ class Vegas:
 
     # funcion encargada de eliminar un camino mal puesto
     def eliminarUltimoCamino(self):
-        self.caminoSolucion = self.caminoSolucion.drop(self.caminoSolucion.tail(1).index, inplace=True)
+        self.caminoSolucion.drop(self.caminoSolucion.tail(1).index, inplace=True)
 
 
     # funcion que construirá la solución
@@ -90,7 +90,7 @@ class Vegas:
                     res = self.vegas(tiempoInicio, vecinos.iloc[indice]['X'], vecinos.iloc[indice]['Y'], longCamino + 1)
                     if (res == None):
                         tiempoActual = time.time()
-                        if (tiempoActual - tiempoInicio >= 300):
+                        if (tiempoActual - tiempoInicio >= 60):
                             quit()
                     # cuando la respuesta ya no es None
                     else:
