@@ -45,12 +45,12 @@ class Vegas:
 
     # funcion encargada de agregar un nodo al camino solucion
     def agregarCamino(self, x, y):
-        self.caminoSolucion.append({'X': x, 'Y': y}, ignore_index=True)
+        self.caminoSolucion = self.caminoSolucion.append({'X': x, 'Y': y}, ignore_index=True)
 
 
     # funcion encargada de eliminar un camino mal puesto
     def eliminarUltimoCamino(self):
-        self.caminoSolucion.drop(self.caminoSolucion.tail(1).index, inplace=True)
+        self.caminoSolucion = self.caminoSolucion.drop(self.caminoSolucion.tail(1).index, inplace=True)
 
 
     # funcion que construirá la solución

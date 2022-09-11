@@ -105,17 +105,12 @@ def renderizacion(tab, n_clicks, nodos):
     # creamos una instancia del objeto que contendrá la solución
     grafo = Vegas.Vegas(nodos)
 
-    fig = px.scatter(grafo.nodos(), x="X", y="Y", title='Nodos del grafo')
-
     if tab == 'tab-1':
         return html.Div(
             children=[
                 html.H5('Tab-1'),
                 html.Br(),
-                dcc.Graph(
-                    id='grafo-inicial',
-                    figure=fig,
-                )
+
             ]
         )
     elif tab == 'tab-2':
@@ -133,11 +128,39 @@ def renderizacion(tab, n_clicks, nodos):
         grafo.vegas(tiempoInicio, grafo.dato['X'][indiceAleatorio], grafo.dato['Y'][indiceAleatorio], 0)
         # traemos el dataframe generado que renderizaremos
         df = grafo.dato
+        grafo.agregarCamino(grafo.dato['X'][indiceAleatorio], grafo.dato['Y'][indiceAleatorio])
+        # traemos el camino generado
+        camino = grafo.caminoSolucion
+
+        fig = px.line(camino, x='X', y='Y', title='Gráfico del camino solución', markers=True)
+
         return html.Div(
             children=[
-                html.H5('Tab-3'),
-                dash_table.DataTable(df.to_dict('records'), [{"name": row, 'id': row} for row in df.columns]),
-                html.Div(id='solucion-avaro')
+                html.Div(
+                    children=[
+                        html.H5('Camino solución'),
+                        dash_table.DataTable(camino.to_dict('records'),
+                                             [{"name": row, 'id': row} for row in camino.columns]),
+                    ]
+                ),
+                html.Div(
+                    children=[
+                        html.Div(
+                            children=[
+                                dcc.Graph(
+                                    id='grafo-camino',
+                                    figure=fig,
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
+                html.Div(
+                    children=[
+                        html.H5('Grafo final'),
+                        dash_table.DataTable(df.to_dict('records'), [{"name": row, 'id': row} for row in df.columns]),
+                    ]
+                ),
             ]
         )
     elif tab == 'tab-4':
