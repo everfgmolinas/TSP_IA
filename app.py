@@ -2,6 +2,7 @@
 import dash
 from dash import html, dcc, dash_table
 from dash.dependencies import Input, Output, State
+import dash_daq as daq
 
 import pandas as pd
 import numpy as np
@@ -126,6 +127,8 @@ def renderizacion(tab, n_clicks, nodos):
         tiempoInicio = time.time()
         # llamamos a nuestra funcion recursiva que resolverá el problema por el método de Las Vegas
         grafo.vegas(tiempoInicio, grafo.dato['X'][indiceAleatorio], grafo.dato['Y'][indiceAleatorio], 0)
+        # tiempo final
+        tiempoFinal = time.time()
         # traemos el dataframe generado que renderizaremos
         df = grafo.dato
         grafo.agregarCamino(grafo.dato['X'][indiceAleatorio], grafo.dato['Y'][indiceAleatorio])
@@ -153,7 +156,8 @@ def renderizacion(tab, n_clicks, nodos):
                             ],
                             style={
                                 "width": 200,
-                                'margin': 100
+                                'margin-left': 100,
+                                'margin-right': 100
                             }
                         ),
                         html.Div(
@@ -164,7 +168,24 @@ def renderizacion(tab, n_clicks, nodos):
                             ],
                             style={
                                 "width": 300,
-                                'margin': 100
+                                'margin-left': 100,
+                                'margin-right': 100
+                            }
+                        ),
+                        html.Div(
+                            id="card-1",
+                            children=[
+                                html.H5("Tiempo de ejecución (s)"),
+                                daq.LEDDisplay(
+                                    id="operator-led",
+                                    value=tiempoFinal-tiempoInicio,
+                                    color="black",
+                                    size=20
+                                ),
+                            ],
+                            style={
+                                'margin-left': 100,
+                                'margin-right': 100
                             }
                         ),
                     ]
