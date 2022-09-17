@@ -10,6 +10,7 @@ import time
 
 import plotly.express as px
 
+import Backtracking
 import Vegas
 
 
@@ -103,17 +104,91 @@ app.layout = html.Div(
 # funcion encargada de renderizar el tab seleccionado
 def renderizacion(tab, n_clicks, nodos):
 
-    # creamos una instancia del objeto que contendrá la solución
-    grafo = Vegas.Vegas(nodos)
-
-    if tab == 'tab-1':
-        return html.Div(
-            children=[
-                html.H5('Tab-1'),
-                html.Br(),
-
-            ]
-        )
+    if tab == 'tab-1' and n_clicks > 0:
+        # instancia de solucion del método backtracking
+        grafo_back = Backtracking.Backtracking(nodos)
+        # generacion de número aleatorio que representa al índice del dataframe que se utilizara
+        inicio = np.random.randint(0, nodos - 1)
+        # se marca el inicio del algoritmo
+        tiempoInicio = time.time()
+        solucion_back = grafo_back.backtracking(grafo_back.dato, inicio)
+        # se marca el inicio del algoritmo
+        tiempoFinal = time.time()
+        fig_back = []
+        print("TOTAL")
+        print(solucion_back)
+        print("PARCIALES")
+        for i in range(0, len(solucion_back)-1):
+            print(solucion_back['ruta'][i])
+            fig_back.append(px.line(solucion_back['ruta'][i], x='X', y='Y', title='Gráfico del camino solución', markers=True))
+            return [html.Div(
+                children=[
+                    html.Div(
+                        style={'display': 'flex', 'flex-direction': 'row'},
+                        children=[
+                            html.Div(
+                                children=[
+                                    html.H5('Camino solución'),
+                                    dash_table.DataTable(
+                                        solucion_back['ruta'][i].to_dict('records'),
+                                        [{"name": row, 'id': row} for row in solucion_back['ruta'][i].columns],
+                                        style_header={
+                                            'backgroundColor': 'white',
+                                            'fontWeight': 'bold'
+                                        },
+                                    ),
+                                ],
+                                style={
+                                    "width": 200,
+                                    'margin-left': 100,
+                                    'margin-right': 100
+                                }
+                            ),
+                            html.Div(
+                                children=[
+                                    html.H5('Grafo final'),
+                                    dash_table.DataTable(solucion_back['ruta'][i].to_dict('records'),
+                                                         [{"name": row, 'id': row} for row in
+                                                          solucion_back['ruta'][i].columns]),
+                                ],
+                                style={
+                                    "width": 300,
+                                    'margin-left': 100,
+                                    'margin-right': 100
+                                }
+                            ),
+                            html.Div(
+                                id="card-1",
+                                children=[
+                                    html.H5("Tiempo de ejecución (s)"),
+                                    daq.LEDDisplay(
+                                        id="operator-led",
+                                        value=tiempoFinal - tiempoInicio,
+                                        color="black",
+                                        size=20
+                                    ),
+                                ],
+                                style={
+                                    'margin-left': 100,
+                                    'margin-right': 100
+                                }
+                            ),
+                        ]
+                    ),
+                    html.Div(
+                        children=[
+                            html.Div(
+                                children=[
+                                    dcc.Graph(
+                                        id='grafo-camino',
+                                        figure=fig_back[i],
+                                    ),
+                                ]
+                            ),
+                        ]
+                    ),
+                ]
+            ) for i in range(0, len(solucion_back)-1)]
     elif tab == 'tab-2':
         return html.Div(
             children=[
@@ -121,6 +196,8 @@ def renderizacion(tab, n_clicks, nodos):
             ]
         )
     elif tab == 'tab-3':
+        # creamos una instancia del objeto que contendrá la solución
+        grafo = Vegas.Vegas(nodos)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
         indiceAleatorio = np.random.randint(0, nodos - 1)
         # se marca el inicio del algoritmo
@@ -215,3 +292,5 @@ def renderizacion(tab, n_clicks, nodos):
 # con esto podemos levantar la aplicación en el navegador
 if __name__ == "__main__":
     app.run_server(debug=True)
+
+
