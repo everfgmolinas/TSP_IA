@@ -11,6 +11,7 @@ import time
 import plotly.express as px
 
 import Backtracking
+import Opt
 import Vegas
 
 
@@ -79,7 +80,7 @@ app.layout = html.Div(
             value='tab-1',
             children=[
                 dcc.Tab(label='Backtracking', value='tab-1'),
-                dcc.Tab(label='Avaro', value='tab-2'),
+                dcc.Tab(label='OPT', value='tab-2'),
                 dcc.Tab(label='Las Vegas', value='tab-3'),
                 dcc.Tab(label='Comparaciones', value='tab-4'),
             ]
@@ -190,9 +191,83 @@ def renderizacion(tab, n_clicks, nodos):
                 ]
             ) for i in range(0, len(solucion_back)-1)]
     elif tab == 'tab-2':
+        # instancia de solucion del método backtracking
+        grafo_opt = Opt.Opt(nodos)
+        # generacion de número aleatorio que representa al índice del dataframe que se utilizara
+        inicio = np.random.randint(0, nodos - 1)
+        # se marca el inicio del algoritmo
+        tiempoInicio = time.time()
+        solucion_opt = grafo_opt.ruta2Optima(grafo_opt.dato, inicio)
+        print("SOLUCION OPT")
+        print(solucion_opt)
+        # se marca el inicio del algoritmo
+        tiempoFinal = time.time()
+        fig_opt = px.line(solucion_opt['ruta'], x='X', y='Y', title='Gráfico del camino solución', markers=True)
         return html.Div(
             children=[
-                html.H5('Tab-2')
+                html.Div(
+                    style={'display': 'flex', 'flex-direction': 'row'},
+                    children=[
+                        html.Div(
+                            children=[
+                                html.H5('Camino solución'),
+                                dash_table.DataTable(
+                                    solucion_opt['ruta'].to_dict('records'),
+                                    [{"name": row, 'id': row} for row in solucion_opt['ruta'].columns],
+                                    style_header={
+                                        'backgroundColor': 'white',
+                                        'fontWeight': 'bold'
+                                    },
+                                ),
+                            ],
+                            style={
+                                "width": 200,
+                                'margin-left': 100,
+                                'margin-right': 100
+                            }
+                        ),
+                        html.Div(
+                            children=[
+                                html.H5('Grafo final'),
+                                dash_table.DataTable(solucion_opt['ruta'].to_dict('records'),
+                                                     [{"name": row, 'id': row} for row in solucion_opt['ruta'].columns]),
+                            ],
+                            style={
+                                "width": 300,
+                                'margin-left': 100,
+                                'margin-right': 100
+                            }
+                        ),
+                        html.Div(
+                            id="card-1",
+                            children=[
+                                html.H5("Tiempo de ejecución (s)"),
+                                daq.LEDDisplay(
+                                    id="operator-led",
+                                    value=tiempoFinal-tiempoInicio,
+                                    color="black",
+                                    size=20
+                                ),
+                            ],
+                            style={
+                                'margin-left': 100,
+                                'margin-right': 100
+                            }
+                        ),
+                    ]
+                ),
+                html.Div(
+                    children=[
+                        html.Div(
+                            children=[
+                                dcc.Graph(
+                                    id='grafo-camino',
+                                    figure=fig_opt,
+                                ),
+                            ]
+                        ),
+                    ]
+                ),
             ]
         )
     elif tab == 'tab-3':
@@ -208,10 +283,15 @@ def renderizacion(tab, n_clicks, nodos):
         tiempoFinal = time.time()
         # traemos el dataframe generado que renderizaremos
         df = grafo.dato
-        grafo.agregarCamino(grafo.dato['X'][indiceAleatorio], grafo.dato['Y'][indiceAleatorio])
         # traemos el camino generado
         camino = grafo.caminoSolucion
-
+        aux = pd.DataFrame(columns=['X', 'Y'])
+        aux = aux.append({'X': grafo.caminoSolucion['X'][0], 'Y': grafo.caminoSolucion['Y'][0]}, ignore_index=True)
+        print("AUX")
+        print(aux)
+        camino = pd.concat([camino, aux], axis=0)
+        print("CAMINO")
+        print(camino)
         fig = px.line(camino, x='X', y='Y', title='Gráfico del camino solución', markers=True)
 
         return html.Div(
