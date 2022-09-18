@@ -44,6 +44,12 @@ def titulo():
 def distancia( punto1, punto2):
     return np.sqrt(np.power(punto1[0]-punto2[0],2) + np.power(punto1[1]-punto2[1],2))
 
+puntosAleatorios = pd.DataFrame(
+    np.random.randint(0, 50, (5, 2)),
+    columns=['X', 'Y']
+)
+
+inicio_all = np.random.randint(0, 5 - 1)
 
 def distancia_total(dataframe):
     sum_distancia = 0
@@ -62,7 +68,7 @@ def parametros():
             ),
             dcc.Input(
                 id='entrada-nodo',
-                value=20,
+                value=5,
                 type='number'
             ),
             html.Button(
@@ -75,7 +81,6 @@ def parametros():
     )
 
 
-
 # aqui definimos el diseño de la aplicacion
 app.layout = html.Div(
     children=[
@@ -85,50 +90,63 @@ app.layout = html.Div(
         # aqui solicitaremos los parámetros para dar una solucion al problema
         parametros(),
         html.Br(),
-        # tabs que contendran cada una de las soluciones
-        dcc.Tabs(
-            id='tabs',
-            # valor por defecto
-            value='tab-1',
-            children=[
-                dcc.Tab(label='Backtracking', value='tab-1'),
-                dcc.Tab(label='OPT', value='tab-2'),
-                dcc.Tab(label='Las Vegas', value='tab-3'),
-                dcc.Tab(label='Comparaciones', value='tab-4'),
-            ]
-        ),
-        html.Br(),
-        html.Div(id='contenido-tab')
+        html.Div(id='header')
     ]
 )
 
+
+@app.callback(
+    Output(component_id='header', component_property='children'),
+    Input(component_id='submit-nodos', component_property='n_clicks'),
+    State(component_id='entrada-nodo', component_property='value')
+)
+
+def firstRender(n_clicks, nodos):
+    global puntosAleatorios
+    puntosAleatorios = pd.DataFrame(
+        np.random.randint(0, 50, (nodos, 2)),
+        columns=['X', 'Y']
+    )
+    global inicio_all
+    inicio_all = np.random.randint(0, nodos - 1)
+    return html.Div(
+        children=[
+            # tabs que contendran cada una de las soluciones
+            dcc.Tabs(
+                id='tabs',
+                # valor por defecto
+                value='tab-1',
+                children=[
+                    dcc.Tab(label='Backtracking', value='tab-1'),
+                    dcc.Tab(label='OPT', value='tab-2'),
+                    dcc.Tab(label='Las Vegas', value='tab-3'),
+                ]
+            ),
+            html.Br(),
+            html.Div(id='contenido-tab')
+        ]
+    )
 
 # definimos el callback que se encarga de vincular el tab con cada contenido
 @app.callback(
     Output(component_id='contenido-tab', component_property='children'),
     [
         Input(component_id='tabs', component_property='value'),
-        Input(component_id='submit-nodos', component_property='n_clicks')
     ],
-    State(component_id='entrada-nodo', component_property='value')
+
 )
 
 
 # funcion encargada de renderizar el tab seleccionado
-def renderizacion(tab, n_clicks, nodos):
+def renderizacion(tab):
 
-    puntosAleatorios = pd.DataFrame(
-        np.random.randint(0, 50, (nodos, 2)),
-        columns=['X', 'Y']
-    )
+    nodos = puntosAleatorios.shape[0]
 
-    print(n_clicks)
-
-    if tab == 'tab-1' and n_clicks > 0:
+    if tab == 'tab-1':
         # instancia de solucion del método backtracking
         grafo_back = Backtracking.Backtracking(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
-        inicio = np.random.randint(0, nodos - 1)
+        inicio = inicio_all
         # se marca el inicio del algoritmo
         tiempoInicio = time.time()
         solucion_back, expandidos = grafo_back.backtracking(grafo_back.dato, inicio)
@@ -141,7 +159,9 @@ def renderizacion(tab, n_clicks, nodos):
         for i in range(0, len(solucion_back)-1):
             print(solucion_back['ruta'][i])
             fig_back.append(px.line(solucion_back['ruta'][i], x='X', y='Y', title='Gráfico del camino solución', markers=True))
-            return [html.Div(
+            return [
+
+                html.Div(
                 children=[
                     html.Div(
                         style={'display': 'flex', 'flex-direction': 'row'},
@@ -213,7 +233,7 @@ def renderizacion(tab, n_clicks, nodos):
         # instancia de solucion del método backtracking
         grafo_opt = Opt.Opt(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
-        inicio = np.random.randint(0, nodos - 1)
+        inicio = inicio_all
         # se marca el inicio del algoritmo
         tiempoInicio = time.time()
         solucion_opt = grafo_opt.ruta2Optima(grafo_opt.dato, inicio)
@@ -293,7 +313,7 @@ def renderizacion(tab, n_clicks, nodos):
         # creamos una instancia del objeto que contendrá la solución
         grafo = Vegas.Vegas(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
-        indiceAleatorio = np.random.randint(0, nodos - 1)
+        indiceAleatorio = inicio_all
         # se marca el inicio del algoritmo
         tiempoInicio = time.time()
         # llamamos a nuestra funcion recursiva que resolverá el problema por el método de Las Vegas
@@ -380,12 +400,7 @@ def renderizacion(tab, n_clicks, nodos):
                 ),
             ]
         )
-    elif tab == 'tab-4':
-        return html.Div(
-            children=[
-                html.H5('Tab-4')
-            ]
-        )
+
 
 
 # con esto podemos levantar la aplicación en el navegador

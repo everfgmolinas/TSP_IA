@@ -52,6 +52,9 @@ class Vegas:
 
     # funcion que construirá la solución
     def vegas(self, tiempoInicio, x, y, longCamino):
+        # agregar punto inicial
+        if(longCamino ==0):
+            self.agregarCamino(x, y)
         # condicion verdadera indica solucion hallada
         if (longCamino == self.nodos().shape[0] - 1):
             # marcar el nodo visitado
