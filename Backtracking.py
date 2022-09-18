@@ -17,10 +17,7 @@ class Backtracking:
     # constructor del grafo
     def __init__(self, nodos):
         # el par (nodos,2) da las dimensiones del array que generará numpy (fila,col)
-        puntosAleatorios = pd.DataFrame(
-            np.random.randint(0, 50, (nodos, 2)),
-            columns=['X', 'Y']
-        )
+        puntosAleatorios = nodos.copy()
         # la columna marcado funciona para ver si el nodo en cuestion ya fue visitado
         grafo = puntosAleatorios.assign(marcado=False)
         self.dato = grafo
@@ -36,12 +33,14 @@ class Backtracking:
 
 
     def search(self, ruta_optima, ruta, grafo, inicio):
+        expandido = 1
         for h in range(0, len(grafo)):
             punto = {"X": grafo.iloc[h].X, "Y": grafo.iloc[h].Y}
             if (not self.existe_en_dataframe(ruta['ruta'], punto)):
                 ruta['ruta'] = ruta['ruta'].append(punto, ignore_index=True)
                 ruta['distancia'] += self.distancia(ruta['ruta'].iloc[-1], ruta['ruta'].iloc[-2])
-                ruta_optima = self.search(ruta_optima, ruta, grafo, inicio)
+                ruta_optima, expandido_hijos = self.search(ruta_optima, ruta, grafo, inicio)
+                expandido += expandido_hijos
                 ruta['distancia'] -= self.distancia(ruta['ruta'].iloc[-1], ruta['ruta'].iloc[-2])
                 ruta['ruta'] = ruta['ruta'].drop([len(ruta['ruta']) - 1], axis=0)
 
@@ -67,7 +66,7 @@ class Backtracking:
             ruta['distancia'] -= self.distancia(ruta['ruta'].iloc[-1], ruta['ruta'].iloc[-2])
             ruta['ruta'] = ruta['ruta'].drop([len(ruta['ruta']) - 1], axis=0)
 
-        return ruta_optima
+        return ruta_optima, expandido
 
 
     def backtracking(self, dataframe, inicio):

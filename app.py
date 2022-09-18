@@ -41,6 +41,18 @@ def titulo():
     )
 
 
+def distancia( punto1, punto2):
+    return np.sqrt(np.power(punto1[0]-punto2[0],2) + np.power(punto1[1]-punto2[1],2))
+
+
+def distancia_total(dataframe):
+    sum_distancia = 0
+    for i in range(len(dataframe)-1):
+        sum_distancia += distancia(dataframe.iloc[i], dataframe.iloc[i+1])
+
+    return sum_distancia
+
+
 # obtiene los parametros de entrada para generar los gráficos
 def parametros():
     return html.Div(
@@ -105,14 +117,21 @@ app.layout = html.Div(
 # funcion encargada de renderizar el tab seleccionado
 def renderizacion(tab, n_clicks, nodos):
 
+    puntosAleatorios = pd.DataFrame(
+        np.random.randint(0, 50, (nodos, 2)),
+        columns=['X', 'Y']
+    )
+
+    print(n_clicks)
+
     if tab == 'tab-1' and n_clicks > 0:
         # instancia de solucion del método backtracking
-        grafo_back = Backtracking.Backtracking(nodos)
+        grafo_back = Backtracking.Backtracking(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
         inicio = np.random.randint(0, nodos - 1)
         # se marca el inicio del algoritmo
         tiempoInicio = time.time()
-        solucion_back = grafo_back.backtracking(grafo_back.dato, inicio)
+        solucion_back, expandidos = grafo_back.backtracking(grafo_back.dato, inicio)
         # se marca el inicio del algoritmo
         tiempoFinal = time.time()
         fig_back = []
@@ -192,7 +211,7 @@ def renderizacion(tab, n_clicks, nodos):
             ) for i in range(0, len(solucion_back)-1)]
     elif tab == 'tab-2':
         # instancia de solucion del método backtracking
-        grafo_opt = Opt.Opt(nodos)
+        grafo_opt = Opt.Opt(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
         inicio = np.random.randint(0, nodos - 1)
         # se marca el inicio del algoritmo
@@ -272,7 +291,7 @@ def renderizacion(tab, n_clicks, nodos):
         )
     elif tab == 'tab-3':
         # creamos una instancia del objeto que contendrá la solución
-        grafo = Vegas.Vegas(nodos)
+        grafo = Vegas.Vegas(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
         indiceAleatorio = np.random.randint(0, nodos - 1)
         # se marca el inicio del algoritmo

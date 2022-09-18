@@ -15,10 +15,7 @@ class Opt:
     # constructor del grafo
     def __init__(self, nodos):
         # el par (nodos,2) da las dimensiones del array que generará numpy (fila,col)
-        puntosAleatorios = pd.DataFrame(
-            np.random.randint(0, 50, (nodos, 2)),
-            columns=['X', 'Y']
-        )
+        puntosAleatorios = nodos.copy()
         # la columna marcado funciona para ver si el nodo en cuestion ya fue visitado
         grafo = puntosAleatorios.assign(marcado=False)
         self.dato = grafo
@@ -35,6 +32,44 @@ class Opt:
         """
         return pd.concat([dataframe.iloc[:inicio + 1], dataframe[inicio + 1:fin + 1:][::-1], dataframe.iloc[fin + 1:]])
 
+    def distancia2(self, punto1, punto2):
+        return np.power(punto1[0] - punto2[0], 2) + np.power(punto1[1] - punto2[1], 2)
+
+    def puntos_mas_cercanos2(self, df, df2, punto_inicial):
+        """Determina los siguientes puntos más cercanos con respecto al punto_inicial,
+        si no encuentra un punto se retorna el mismo.
+
+        Parameters
+        ----------
+          df : Dataframe de puntos totales
+          df2 : Dataframe de puntos ya utilizados
+          punto_inicial : punto a partir de donde se busca el siguiente punto
+
+        Returns
+        ----------
+
+          array de df.row : array de puntos mas cercanos
+          int : longitud con el punto mas cercano o numpy.inf
+        """
+
+        # longitud infinita
+        min_lenght = np.inf
+
+        # el siguiente punto más cercano es si mismo
+        next = [punto_inicial]
+
+        for index, row in df.iterrows():
+            # no debe de existir en el segundo dataframe y debe de ser una longitud menor a la
+            # longitud minima
+            if (self.existe_en_dataframe(df2, row) != True and self.distancia2(row, punto_inicial) <= min_lenght):
+                if (self.distancia2(row, punto_inicial) < min_lenght):
+                    next = [row]
+                    min_lenght = self.distancia2(row, punto_inicial)
+                else:
+                    next.append(row)
+
+        # retorna el punto y la longitud
+        return next, min_lenght
 
     def distancia(self, punto1, punto2):
         return np.sqrt(np.power(punto1[0] - punto2[0], 2) + np.power(punto1[1] - punto2[1], 2))
@@ -98,9 +133,9 @@ class Opt:
             for i in range(fin - 1):
 
                 # calcular la mejora de distancia si se incercambia dos aristas
-                lengthDelta = - self.distancia(ruta['ruta'].iloc[i], ruta['ruta'].iloc[i + 1]) - self.distancia(
-                    ruta['ruta'].iloc[fin], ruta['ruta'].iloc[fin + 1]) + self.distancia(ruta['ruta'].iloc[i],
-                                                                                    ruta['ruta'].iloc[fin]) + self.distancia(
+                lengthDelta = - self.distancia2(ruta['ruta'].iloc[i], ruta['ruta'].iloc[i + 1]) - self.distancia2(
+                    ruta['ruta'].iloc[fin], ruta['ruta'].iloc[fin + 1]) + self.distancia2(ruta['ruta'].iloc[i],
+                                                                                    ruta['ruta'].iloc[fin]) + self.distancia2(
                     ruta['ruta'].iloc[i + 1], ruta['ruta'].iloc[fin + 1])
 
                 # si la distancia es negativa, significa una mejora
@@ -130,10 +165,10 @@ class Opt:
                                            ignore_index=True)
 
         # mientras no haya un punto sin visitar
-        while (len(ruta['ruta']) != len(dataframe)):
+        while len(ruta['ruta']) != len(dataframe):
 
             # obtener puntos mas cercanos
-            puntos_siguientes, distancia_sig = self.puntos_mas_cercanos(dataframeCP, ruta['ruta'], ruta['ruta'].iloc[-1])
+            puntos_siguientes, distancia_sig = self.puntos_mas_cercanos2(dataframeCP, ruta['ruta'], ruta['ruta'].iloc[-1])
 
             # array de heuristicas
             heuristicas = []
@@ -167,7 +202,7 @@ class Opt:
         # conectar con el inicio
         ruta['ruta'] = ruta['ruta'].append({'X': ruta['ruta'].iloc[0].X, 'Y': ruta['ruta'].iloc[0].Y},
                                            ignore_index=True)
-        ruta['distancia'] += self.distancia(ruta['ruta'].iloc[-1], ruta['ruta'].iloc[-2])
+        ruta['distancia'] += self.distancia2(ruta['ruta'].iloc[-1], ruta['ruta'].iloc[-2])
 
         # aplicar la optimizacion al volver al inicio
         return self.opt2_local(ruta, len(ruta_cp['ruta']) - 2)

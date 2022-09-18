@@ -24,10 +24,7 @@ class Vegas:
     # constructor del grafo
     def __init__(self, nodos):
         # el par (nodos,2) da las dimensiones del array que generará numpy (fila,col)
-        puntosAleatorios = pd.DataFrame(
-            np.random.randint(0, 50, (nodos, 2)),
-            columns=['X', 'Y']
-        )
+        puntosAleatorios = nodos.copy()
         # la columna marcado funciona para ver si el nodo en cuestion ya fue visitado
         grafo = puntosAleatorios.assign(marcado=False)
         self.dato = grafo
