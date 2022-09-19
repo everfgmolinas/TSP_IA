@@ -23,6 +23,7 @@ app = dash.Dash(
     __name__,
     # indicamos el path de donde consultar los estilos
     external_stylesheets=external_stylesheets,
+    suppress_callback_exceptions=True
 )
 
 # aqui le damos un título a la aplicación
