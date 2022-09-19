@@ -117,8 +117,8 @@ def firstRender(n_clicks, nodos):
                 # valor por defecto
                 value='tab-1',
                 children=[
-                    dcc.Tab(label='Backtracking', value='tab-1'),
-                    dcc.Tab(label='OPT', value='tab-2'),
+                    dcc.Tab(label='OPT', value='tab-1'),
+                    dcc.Tab(label='Backtracking', value='tab-2'),
                     dcc.Tab(label='Las Vegas', value='tab-3'),
                 ]
             ),
@@ -142,7 +142,7 @@ def renderizacion(tab):
 
     nodos = puntosAleatorios.shape[0]
 
-    if tab == 'tab-1':
+    if tab == 'tab-2':
         # instancia de solucion del método backtracking
         grafo_back = Backtracking.Backtracking(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
@@ -229,7 +229,7 @@ def renderizacion(tab):
                     ),
                 ]
             ) for i in range(0, len(solucion_back)-1)]
-    elif tab == 'tab-2':
+    elif tab == 'tab-1':
         # instancia de solucion del método backtracking
         grafo_opt = Opt.Opt(puntosAleatorios)
         # generacion de número aleatorio que representa al índice del dataframe que se utilizara
